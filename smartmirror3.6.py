@@ -9,6 +9,15 @@ import requests, json
 import traceback
 import config
 
+import matplotlib
+matplotlib.use("TkAgg")
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib import style
+style.use("dark_background")
+
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 
@@ -100,6 +109,8 @@ class Clock(Frame):
 
 
 class Weather(Frame):
+    # TODO: Wrap text for weather forecast, or change size
+
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
         self.temperature = ''
@@ -212,10 +223,19 @@ class BTCTicker(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
 
-        self.btc_price = ''
-        self.btcLbl = Label(self, font=('Helvetica', large_text_size), fg="white", bg="black")
-        self.btcLbl.pack(side=LEFT, anchor=W)
+        #self.chartFrm = Frame(self, bg='black')
+        #self.chartFrm.pack(side=)
 
+        f = Figure(figsize=(5, 5), dpi=100)
+        a = f.add_subplot(111)  # 1x1 and this is chart number 1
+        a.plot([1, 2, 3, 4, 5, 6, 7, 8], [4, 1, 3, 2, 3, 1, 3, 5])
+
+        self.canvas = FigureCanvasTkAgg(f, self)
+        self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, anchor=N, expand=True)
+
+        self.btc_price = ''
+        self.btcLbl = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.btcLbl.pack(side=LEFT, anchor=W)
         self.price_tick()
 
     def price_tick(self):
@@ -234,16 +254,19 @@ class BTCTicker(Frame):
         self.btcLbl.after(60000, self.price_tick)
 
 
+
 class FullscreenWindow:
 
     def __init__(self):
         # Set up frames
         self.tk = Tk()
         self.tk.configure(background='black')
-        self.topFrame = Frame(self.tk, background = 'black')
-        self.bottomFrame = Frame(self.tk, background = 'black')
-        self.topFrame.pack(side = TOP, fill=BOTH, expand = YES)
-        self.bottomFrame.pack(side = BOTTOM, fill=BOTH, expand = YES)
+        self.topFrame = Frame(self.tk, background='black')
+        self.midFrame = Frame(self.tk, background='black')
+        self.bottomFrame = Frame(self.tk, background='black')
+        self.topFrame.pack(side=TOP, fill=BOTH, expand=YES)
+        self.midFrame.pack(side=TOP, fill=BOTH, expand=YES)
+        self.bottomFrame.pack(side=BOTTOM, fill=BOTH, expand=YES)
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
@@ -258,7 +281,7 @@ class FullscreenWindow:
 
         # BTC Ticker
         self.ticker = BTCTicker(self.bottomFrame)
-        self.ticker.pack(side=LEFT,anchor=S, padx=100, pady=60)
+        self.ticker.pack(side=BOTTOM, anchor=S, fill=BOTH, padx=100, pady=60)
 
 
     def toggle_fullscreen(self, event=None):
