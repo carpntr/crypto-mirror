@@ -4,9 +4,9 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-# Must be ran as root or as sudo
+# Must be run as as sudo
 if os.getuid() != 0:
-    print('ERROR: Need to run as root')
+    print('ERROR: Need sudo')
     sys.exit(1)
 
 # Install the requirements if the system does not have it installed
@@ -26,7 +26,12 @@ setup(
     version='1.0.0',
     description='Raspberry powered mirror which can display news, weather, calendar events',
     author='HackerHouse',
-    url='https://github.com/HackerHouseYT/Smart-Mirror',
+    url='https://github.com/AndrewLCarpenter/Smart-Mirror',
     install_requires=packages,
     packages=find_packages(),
 )
+
+
+
+
+

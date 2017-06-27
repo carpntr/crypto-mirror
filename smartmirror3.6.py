@@ -8,13 +8,18 @@ import time
 import requests, json
 import traceback
 import config
-
+import pandas as pd
+import numpy as np
 import matplotlib
 matplotlib.use("TkAgg")
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
+import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
+from matplotlib.finance import candlestick_ohlc
+from matplotlib import pyplot as plt
 from matplotlib import style
 style.use("dark_background")
 
@@ -64,6 +69,26 @@ icon_lookup = {
     'tornado': "assests/Tornado.png",    # tornado
     'hail': "assests/Hail.png"  # hail
 }
+
+f = Figure(figsize=(6, 4), dpi=100)
+a = f.add_subplot(111)  # 1x1 and this is chart number 1
+
+
+def animate(args):
+    btce_url = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
+    data = requests.get(btce_url).json()
+
+    data = data["btc_usd"]
+    data = pd.DataFrame(data)
+
+
+    data['datestamp'] = data['timestamp'].astype('datetime64[s]')
+    plot_dates = data['datestamp'].apply(lambda date: mdates.date2num(date.to_pydatetime()))
+    data.set_index('datestamp', inplace=True)
+
+
+    a.set_title = 'BTC-E Price (USD)'
+    a.plot_date(plot_dates, data["price"], 'w')
 
 
 class Clock(Frame):
@@ -223,20 +248,14 @@ class BTCTicker(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
 
-        #self.chartFrm = Frame(self, bg='black')
-        #self.chartFrm.pack(side=)
-
-        f = Figure(figsize=(5, 5), dpi=100)
-        a = f.add_subplot(111)  # 1x1 and this is chart number 1
-        a.plot([1, 2, 3, 4, 5, 6, 7, 8], [4, 1, 3, 2, 3, 1, 3, 5])
-
-        self.canvas = FigureCanvasTkAgg(f, self)
-        self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, anchor=N, expand=True)
-
         self.btc_price = ''
         self.btcLbl = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-        self.btcLbl.pack(side=LEFT, anchor=W)
+        self.btcLbl.pack(side=TOP, anchor=W)
+        self.canvas = FigureCanvasTkAgg(f, self)
+        self.canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, anchor=N, expand=True)
+
         self.price_tick()
+
 
     def price_tick(self):
         # Pull data from coindesk BPI
@@ -296,4 +315,5 @@ class FullscreenWindow:
 
 if __name__ == '__main__':
     w = FullscreenWindow()
+    ani = animation.FuncAnimation(f, animate, interval=2000)
     w.tk.mainloop()
