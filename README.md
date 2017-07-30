@@ -43,3 +43,8 @@ To run the application run the following command in this folder
 
 ```
 python smartmirror.py
+```
+
+## Installing arctic 
+```
+pip install git+https://github.com/manahl/arctic.git

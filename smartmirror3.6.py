@@ -90,6 +90,36 @@ def animate(args):
     a.set_title = 'BTC-E Price (USD)'
     a.plot_date(plot_dates, data["price"], 'w')
 
+class Ticker(Frame):
+    """ Cryptocurrency ticker object"""
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, bg='black')
+
+        self.btc_price = ''
+        self.btcLbl = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.btcLbl.pack(side=TOP, anchor=W)
+        self.canvas = FigureCanvasTkAgg(f, self)
+        self.canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, anchor=N, expand=True)
+
+        self.price_tick()
+
+
+    def price_tick(self):
+        # Pull top ten crypto prices from coinmarketcap.com
+        tick = requests.get('https://api.coinmarketcap.com/v1/ticker/?',{'limit': 10})
+        btc_data = json.loads(tick.text)
+
+        print(btc_data)
+        new_price = btc_data['bpi']['USD']['rate']
+
+        # Update label if price changed
+        #if new_price != self.btc_price:
+        #    self.btc_price = new_price
+            #self.btcLbl.config(text=f"BTC: ${new_price[:-2]}")
+
+        # Call self after 60 seconds
+        self.btcLbl.after(60000, self.price_tick)
+
 
 class Clock(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -243,37 +273,6 @@ class Weather(Frame):
         return 1.8 * (kelvin_temp - 273) + 32
 
 
-class BTCTicker(Frame):
-
-    def __init__(self, parent, *args, **kwargs):
-        Frame.__init__(self, parent, bg='black')
-
-        self.btc_price = ''
-        self.btcLbl = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
-        self.btcLbl.pack(side=TOP, anchor=W)
-        self.canvas = FigureCanvasTkAgg(f, self)
-        self.canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, anchor=N, expand=True)
-
-        self.price_tick()
-
-
-    def price_tick(self):
-        # Pull data from coindesk BPI
-        # TODO: Give coindesk credit for BPI usage
-        btc_resp = requests.get(btc_url)
-        btc_data = json.loads(btc_resp.text)
-        new_price = btc_data['bpi']['USD']['rate']
-
-        # Update label if price changed
-        if new_price != self.btc_price:
-            self.btc_price = new_price
-            self.btcLbl.config(text=f"BTC: ${new_price[:-2]}")
-
-        # Call self after 60 seconds
-        self.btcLbl.after(60000, self.price_tick)
-
-
-
 class FullscreenWindow:
 
     def __init__(self):
@@ -299,7 +298,7 @@ class FullscreenWindow:
         self.weather.pack(side=LEFT, anchor=N, padx=100, pady=60)
 
         # BTC Ticker
-        self.ticker = BTCTicker(self.bottomFrame)
+        self.ticker = Ticker(self.bottomFrame)
         self.ticker.pack(side=BOTTOM, anchor=S, fill=BOTH, padx=100, pady=60)
 
 
@@ -315,5 +314,5 @@ class FullscreenWindow:
 
 if __name__ == '__main__':
     w = FullscreenWindow()
-    ani = animation.FuncAnimation(f, animate, interval=2000)
+    #ani = animation.FuncAnimation(f, animate, interval=2000)
     w.tk.mainloop()
