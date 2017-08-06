@@ -1,5 +1,7 @@
 # Smart-Mirror
-Raspberry powered mirror which can display the news, weather, and time.
+Raspberry Pi powered mirror which can display the news, weather, time, and cryptocurrency prices. Originally
+forked from HackerHosue, converted to Python 3.6, added cryptocurrency ticker, along with several other
+small changes.
 
 ## Installation and Updating
 ### Code

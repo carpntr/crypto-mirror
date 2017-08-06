@@ -11,6 +11,8 @@ from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
 
+#ToDo: Create file based config
+
 ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
 time_format = 24 # 12 or 24
 date_format = "%b %d, %Y" # check python doc for strftime() for options
