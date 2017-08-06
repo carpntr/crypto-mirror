@@ -1,6 +1,4 @@
 # smartmirror.py
-# requirements
-# requests, feedparser, traceback, Pillow
 
 from tkinter import *
 import locale, threading
@@ -8,21 +6,6 @@ import time
 import requests, json
 import traceback
 import config
-import pandas as pd
-import numpy as np
-import matplotlib
-matplotlib.use("TkAgg")
-
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-import matplotlib.animation as animation
-import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
-from matplotlib.finance import candlestick_ohlc
-from matplotlib import pyplot as plt
-from matplotlib import style
-style.use("dark_background")
-
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 
@@ -41,7 +24,6 @@ xlarge_text_size = 94
 large_text_size = 48
 medium_text_size = 28
 small_text_size = 18
-btc_url = 'http://api.coindesk.com/v1/bpi/currentprice.json'
 
 @contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -70,25 +52,26 @@ icon_lookup = {
     'hail': "assests/Hail.png"  # hail
 }
 
-f = Figure(figsize=(6, 4), dpi=100)
-a = f.add_subplot(111)  # 1x1 and this is chart number 1
+
+class CoinTicker:
+
+    def __init__(self, url='https://api.coinmarketcap.com/v1/ticker/?', **kwargs):
+        self.url = url
+        self.tick_data = {}
+        self.update_ticker()
 
 
-def animate(args):
-    btce_url = 'https://btc-e.com/api/3/trades/btc_usd?limit=2000'
-    data = requests.get(btce_url).json()
+    def update_ticker(self):
+        resp = requests.get('https://api.coinmarketcap.com/v1/ticker/?', {'limit': 10})
+        tick_dict = {}
+        for d in json.loads(resp.text):
+            sym = d['symbol']
+            tick_dict.setdefault(sym, {})
+            for k, v in d.items():
+                if not k == 'symbol':
+                    tick_dict[sym][k] = v
+        self.tick_data = tick_dict
 
-    data = data["btc_usd"]
-    data = pd.DataFrame(data)
-
-
-    data['datestamp'] = data['timestamp'].astype('datetime64[s]')
-    plot_dates = data['datestamp'].apply(lambda date: mdates.date2num(date.to_pydatetime()))
-    data.set_index('datestamp', inplace=True)
-
-
-    a.set_title = 'BTC-E Price (USD)'
-    a.plot_date(plot_dates, data["price"], 'w')
 
 class Ticker(Frame):
     """ Cryptocurrency ticker object"""
@@ -98,24 +81,26 @@ class Ticker(Frame):
         self.btc_price = ''
         self.btcLbl = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
         self.btcLbl.pack(side=TOP, anchor=W)
-        self.canvas = FigureCanvasTkAgg(f, self)
-        self.canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, anchor=N, expand=True)
+        self.eth_price = ''
+        self.ethLbl = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.ethLbl.pack(side=TOP, anchor=W)
 
+        # Initialize ticker
+        self.tick_obj = CoinTicker()
         self.price_tick()
-
 
     def price_tick(self):
         # Pull top ten crypto prices from coinmarketcap.com
-        tick = requests.get('https://api.coinmarketcap.com/v1/ticker/?',{'limit': 10})
-        btc_data = json.loads(tick.text)
-
-        print(btc_data)
-        new_price = btc_data['bpi']['USD']['rate']
+        self.tick_obj.update_ticker()
+        new_price = self.tick_obj.tick_data['BTC']['price_usd']
 
         # Update label if price changed
-        #if new_price != self.btc_price:
-        #    self.btc_price = new_price
-            #self.btcLbl.config(text=f"BTC: ${new_price[:-2]}")
+        if new_price != self.btc_price:
+            self.btc_price = new_price
+            self.btcLbl.config(text=f"BTC: ${new_price}")
+
+            self.eth_price = self.tick_obj.tick_data['ETH']['price_usd']
+            self.ethLbl.config(text=f"ETH: ${self.eth_price}")
 
         # Call self after 60 seconds
         self.btcLbl.after(60000, self.price_tick)
@@ -314,5 +299,4 @@ class FullscreenWindow:
 
 if __name__ == '__main__':
     w = FullscreenWindow()
-    #ani = animation.FuncAnimation(f, animate, interval=2000)
     w.tk.mainloop()
