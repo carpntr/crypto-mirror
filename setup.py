@@ -1,16 +1,17 @@
 #!/usr/bin/python
-
 import os
-import sys
 from setuptools import setup, find_packages
+import logging
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 # Must be run as as sudo
 if os.getuid() != 0:
-    print('ERROR: Need sudo')
+    logging.error('Need admin privileges for this. Try running with sudo.')
     sys.exit(1)
 
 # Install the requirements if the system does not have it installed
-print('INFO: Checking and installing requirements')
+logging.info('Checking and installing requirements')
 os.system('! dpkg -S python-imaging-tk && apt-get -y install python-imaging-tk')
 
 # Generate the requirements from the file for old instructions
@@ -22,10 +23,10 @@ for line in open('requirements.txt', 'r'):
 
 # Run setuptools for pip
 setup(
-    name='smartmirror',
+    name='crypto-mirror',
     version='1.0.0',
-    description='Raspberry powered mirror which can display news, weather, calendar events',
-    author='HackerHouse, Andrew Carpenter',
+    description='Raspberry powered mirror which can display news, weather, calendar events, cryptocurrency prices',
+    author='Andrew Carpenter, HackerHouse',
     url='https://github.com/AndrewLCarpenter/Smart-Mirror',
     install_requires=packages,
     packages=find_packages(),
