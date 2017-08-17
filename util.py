@@ -1,21 +1,8 @@
 import yaml
-import string
 import logging
 import requests
+import os
 
-
-
-def darksky_call(token, exp_return):
-    resp = requests.get(f'https://api.darksky.net/forecast/{token}/38,-77?lang=en&units=us')
-    logging.info('Making test API call to darksky.net...')
-    logging.info(f'Call returned status code: {resp.status_code}')
-
-    # Check if expected
-    if resp.status_code == exp_return:
-        logging.info('Weather API token validated!')
-        return True
-    else:
-        return False
 
 class MirrorConfig:
     """Class that contains config for smartmirror"""
@@ -24,24 +11,9 @@ class MirrorConfig:
         self.validate_token()
 
     def validate_token(self):
-        token = self.weather_api_token
-        # Check if it meets basic criteria
-        valid = darksky_call(token, 200)
-        if valid:
-            return
-        else:
-            # Invalid weather token?
-            user_token = input('Something is wrong with your Darksky.net API token!\n'
-                               'Input a better token or press ENTER to continue without valid token: ')
-            if user_token:
-                if darksky_call(user_token, 200):
-                    # User passed in a valid token, so replace old one in config file
-                    old_cfg = open(self.config_path).read()
-                    new_cfg = old_cfg.replace(token, user_token)
-                    with open(self.config_path, 'w') as cfh:
-                        cfh.write(new_cfg)
-                    self.weather_api_token = user_token
-        return
+        key_manager = KeyManager(self.weather_key_path)
+        key_manager.fetch_keys()
+        self.weather_api_token = key_manager.api_key
 
     @classmethod
     def from_yaml(cls, config_path):
@@ -49,4 +21,49 @@ class MirrorConfig:
             tmp_cfg = yaml.load(cfh)
             tmp_cfg['config_path'] = config_path
         return cls(**tmp_cfg)
+
+
+class KeyManager:
+    def __init__(self, api_key=None, key_path='assets/keys.yml', key_status=False):
+        self.key_path = key_path
+        self.key_status = key_status
+        self.api_key = api_key
+        self.fetch_keys()
+
+    def fetch_keys(self):
+        if os.path.exists(self.key_path):
+            with open(self.key_path) as kfh:
+                key_dict = yaml.load(kfh)
+                self.api_key = key_dict['darksky_token'] if key_dict else ''
+        else:
+            # assume that file doesnt exist, create it
+            self.add_key()
+
+    def add_key(self):
+        """Prompts user for darksky key, creates key_file if valid"""
+        new_key = input('It doesnt look like you have any API keys yet. '
+                        'Create one at darksky.net/dev, then paste it here: ')
+        if new_key:
+            valid = self.key_test(new_key)
+            if valid:
+                # Set key and key status
+                self.key_status = True
+                self.api_key = new_key
+
+                # write new key to file
+                try:
+                    key_dict = {'darksky_token': new_key}
+                    with open(self.key_path, 'w') as cfh:
+                        cfh.write(f'darksky_token: {new_key}')
+                    print('Key file created successfully!')
+                except Exception as e:
+                    print(f'Failed to create key file: {e}')
+        else:
+            print('Invalid key')
+
+    @staticmethod
+    def key_test(key, exp_return=200):
+        """Makes a test call to darksky api"""
+        resp = requests.get(f'https://api.darksky.net/forecast/{key}/38,-77?lang=en&units=us')
+        return True if resp.status_code == exp_return else False
 
