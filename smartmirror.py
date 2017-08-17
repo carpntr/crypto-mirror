@@ -11,7 +11,7 @@ from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
 CONFIG_PATH = 'config.yml'
-CONFIG = MirrorConfig(CONFIG_PATH)
+CONFIG = MirrorConfig.from_yaml(CONFIG_PATH)
 
 @contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -123,7 +123,6 @@ class Weather(Frame):
 
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
-        CONFIG = MirrorConfig(CONFIG_PATH)
         self.temperature = ''
         self.forecast = ''
         self.location = ''
@@ -155,9 +154,7 @@ class Weather(Frame):
 
     def get_weather(self):
         try:
-
-            if CONFIG.latitude is None and \
-                            CONFIG.longitude is None:
+            if not CONFIG.latitude:
                 # get location
                 location_req_url = "http://freegeoip.net/json/%s" % self.get_ip()
                 r = requests.get(location_req_url)
@@ -223,7 +220,7 @@ class Weather(Frame):
             traceback.print_exc()
             print(f'Error: {e}. Cannot get weather.')
 
-        self.after(600000, self.get_weather)
+        self.after(CONFIG.weather_refresh, self.get_weather)
 
     @staticmethod
     def convert_kelvin_to_fahrenheit(kelvin_temp):
