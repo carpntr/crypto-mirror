@@ -5,7 +5,7 @@ import os
 
 
 class MirrorConfig:
-    """Class that contains config for smartmirror"""
+    """Class that contains config for crypto-mirror UI and stuff"""
     def __init__(self, *args, **kwargs):
         self.__dict__.update(kwargs)
         self.validate_token()
