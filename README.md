@@ -8,7 +8,7 @@ get to the point where this warrants its own repo. Original Smart-Mirror can be 
 If you have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed, clone the repository.
 
 ```
-git clone git@github.com:AndrewLCarpenter/Smart-Mirror.git
+git clone git@github.com:AndrewLCarpenter/crypto-mirror.git
 ```
 
 ### Install your dependencies 
