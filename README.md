@@ -1,4 +1,4 @@
-# Smart-Mirror
+# crypto-mirror
 Raspberry Pi powered mirror which can display the news, weather, time, and cryptocurrency prices. Originally
 forked from HackerHouse, converted to Python 3.6, added cryptocurrency ticker. The changes are starting to 
 get to the point where this warrants its own repo. Original Smart-Mirror can be found at the [HackerHouseYT repo](https://github.com/HackerHouseYT/Smart-Mirror)
@@ -26,5 +26,5 @@ sudo apt-get install python-imaging-tk
 To run the application run the following command in this folder
 
 ```
-python smartmirror.py
+python cryptomirror.py
 ```
