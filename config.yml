@@ -20,6 +20,7 @@ small_text_size : 18
 
 # Ticker config
 ticker:
+  url: 'https://api.coinmarketcap.com/v1/ticker/?'
   display:
     foreground: 'white'
     background: 'black'
