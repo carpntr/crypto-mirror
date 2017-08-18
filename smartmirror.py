@@ -5,7 +5,7 @@ import locale, threading
 import time
 import requests, json
 import traceback
-from util import MirrorConfig
+from util import *
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 
@@ -23,57 +23,52 @@ def setlocale(name): #thread proof function to work with locale
             locale.setlocale(locale.LC_ALL, saved)
 
 
-class CoinTicker:
-
-    def __init__(self, url='https://api.coinmarketcap.com/v1/ticker/?', **kwargs):
-        self.url = url
-        self.tick_data = {}
-        self.update_ticker()
-
-
-    def update_ticker(self):
-        resp = requests.get('https://api.coinmarketcap.com/v1/ticker/?', {'limit': 10})
-        tick_dict = {}
-        for d in json.loads(resp.text):
-            sym = d['symbol']
-            tick_dict.setdefault(sym, {})
-            for k, v in d.items():
-                if not k == 'symbol':
-                    tick_dict[sym][k] = v
-        self.tick_data = tick_dict
-
-
 class Ticker(Frame):
-    """ Cryptocurrency ticker object"""
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, bg='black')
+        self.symbols = CONFIG.ticker['symbols']
+        self.url = CONFIG.ticker['url']
+        self.update_symbols(initial=True)
 
-        self.btc_price = ''
-        self.btcLbl = Label(self, font=('Helvetica', CONFIG.medium_text_size), fg="white", bg="black")
-        self.btcLbl.pack(side=TOP, anchor=W)
-        self.eth_price = ''
-        self.ethLbl = Label(self, font=('Helvetica', CONFIG.medium_text_size), fg="white", bg="black")
-        self.ethLbl.pack(side=TOP, anchor=W)
 
-        # Initialize ticker
-        self.tick_obj = CoinTicker()
-        self.price_tick()
+    # Todo: separate this method out into several smaller ones
+    def update_symbols(self, initial=False):
+        tick_dict = {}
+        resp = requests.get(self.url, {'limit': 10})
+        for d in json.loads(resp.text):
+            sym = d['symbol']
+            if sym in self.symbols:
+                # Create dictionary for given symbol
+                for k, v in d.items():
+                    tick_dict[k] = v
+                # Create a coinlabel from tick_dict
+                if initial:
+                    setattr(self, sym, Coin.from_dict(tick_dict))
+                else:
+                    label = getattr(self, sym)
+                    label.update_price(tick_dict['price_usd'])
+        # update once a minute
+        # add logging statements
+        self.after(60000, self.update_symbols)
 
-    def price_tick(self):
-        # Pull top ten crypto prices from coinmarketcap.com
-        self.tick_obj.update_ticker()
-        new_price = self.tick_obj.tick_data['BTC']['price_usd']
 
-        # Update label if price changed
-        if new_price != self.btc_price:
-            self.btc_price = new_price
-            self.btcLbl.config(text=f"BTC: ${new_price}")
+class Coin(Label):
+    def __init__(self, *args, **kwargs):
+        # Assign attributes from tick_dict
+        self.__dict__.update(kwargs)
+        Label.__init__(self,font=('Helvetica', CONFIG.medium_text_size),
+                       fg='white',
+                       bg='black')
+        self.pack(side=TOP, anchor=W, padx=100)
+        self.update_price()
 
-            self.eth_price = self.tick_obj.tick_data['ETH']['price_usd']
-            self.ethLbl.config(text=f"ETH: ${self.eth_price}")
+    def update_price(self, price=None):
+        self.price_usd = curr_fmt(price) if price else curr_fmt(self.price_usd)
+        self.config(text=f'{self.symbol}: ${self.price_usd}')
 
-        # Call self after 60 seconds
-        self.btcLbl.after(60000, self.price_tick)
+    @classmethod
+    def from_dict(cls, dict):
+        return cls(**dict)
 
 
 class Clock(Frame):
@@ -238,7 +233,7 @@ class FullscreenWindow:
         self.bottomFrame = Frame(self.tk, background='black')
         self.topFrame.pack(side=TOP, fill=BOTH, expand=YES)
         self.midFrame.pack(side=TOP, fill=BOTH, expand=YES)
-        self.bottomFrame.pack(side=BOTTOM, fill=BOTH, expand=YES)
+        self.bottomFrame.pack(side=BOTTOM, fill=BOTH, expand=NO)
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)

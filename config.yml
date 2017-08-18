@@ -24,14 +24,13 @@ ticker:
   display:
     foreground: 'white'
     background: 'black'
+  #Todo: keep these sorted the same way for UI?
   symbols:
     - BTC
     - ETH
     - LTC
-    - NEO
-
-
-
+    - ETC
+    - DASH
 
 
 # Weather icons

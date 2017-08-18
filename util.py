@@ -67,3 +67,6 @@ class KeyManager:
         resp = requests.get(f'https://api.darksky.net/forecast/{key}/38,-77?lang=en&units=us')
         return True if resp.status_code == exp_return else False
 
+
+def curr_fmt(price):
+    return round(float(price),2)
