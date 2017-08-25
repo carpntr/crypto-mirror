@@ -193,7 +193,7 @@ class Weather(Frame):
             icon2 = None
 
             if icon_id in CONFIG.icon_lookup:
-                icon2 = CONFIG.icon_lookup[icon_id]
+                icon2 = f'{REL_PATH}/{CONFIG.icon_lookup[icon_id]}'
 
             if icon2 is not None:
                 if self.icon != icon2:

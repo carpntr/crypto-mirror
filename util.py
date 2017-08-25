@@ -2,7 +2,7 @@ import yaml
 import logging
 import requests
 import os
-
+REL_PATH = os.path.realpath(__file__).rsplit('/', 1)[0]
 
 class MirrorConfig:
     """Class that contains config for crypto-mirror UI and stuff"""
@@ -24,7 +24,7 @@ class MirrorConfig:
 
 
 class KeyManager:
-    def __init__(self, api_key=None, key_path='assets/keys.yml', key_status=False):
+    def __init__(self, api_key=None, key_path=f'{REL_PATH}/assets/keys.yml', key_status=False):
         self.key_path = key_path
         self.key_status = key_status
         self.api_key = api_key
