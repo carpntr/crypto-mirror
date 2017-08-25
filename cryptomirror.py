@@ -11,7 +11,7 @@ from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
 REL_PATH = os.path.realpath(__file__).rsplit('/', 1)[0]
-CONFIG_PATH = REL_PATH + '/config.yml'
+CONFIG_PATH = f'{REL_PATH}/config.yml'
 CONFIG = MirrorConfig.from_yaml(CONFIG_PATH)
 
 @contextmanager
@@ -235,7 +235,7 @@ class FullscreenWindow:
         self.topFrame.pack(side=TOP, fill=BOTH, expand=YES)
         self.midFrame.pack(side=TOP, fill=BOTH, expand=YES)
         self.bottomFrame.pack(side=BOTTOM, fill=BOTH, expand=NO)
-        self.state = False
+        self.state = True
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
 
@@ -250,6 +250,7 @@ class FullscreenWindow:
         # BTC Ticker
         self.ticker = Ticker(self.bottomFrame)
         self.ticker.pack(side=BOTTOM, anchor=S, fill=BOTH, padx=100, pady=60)
+        self.toggle_fullscreen()
 
 
     def toggle_fullscreen(self, event=None):
