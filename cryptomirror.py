@@ -253,15 +253,15 @@ class FullscreenWindow:
 
         # clock
         self.clock = Clock(self.topFrame)
-        self.clock.pack(side=RIGHT, anchor=N, padx=100, pady=60)
+        self.clock.pack(side=RIGHT, anchor=N, padx=50, pady=30)
 
         # weather
         self.weather = Weather(self.topFrame)
-        self.weather.pack(side=LEFT, anchor=N, padx=100, pady=60)
+        self.weather.pack(side=LEFT, anchor=N, padx=50, pady=30)
 
         # BTC Ticker
         self.ticker = Ticker(self.bottomFrame)
-        self.ticker.pack(side=BOTTOM, anchor=S, fill=BOTH, padx=100, pady=60)
+        self.ticker.pack(side=BOTTOM, anchor=S, fill=BOTH, padx=50, pady=30)
         self.toggle_fullscreen()
 
     def toggle_fullscreen(self, event=None):

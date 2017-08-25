@@ -13,7 +13,7 @@ longitude : # Set this if IP location lookup does not work for you (must be a st
 
 
 # Text sizes
-xlarge_text_size : 94
+xlarge_text_size : 72
 large_text_size : 48
 medium_text_size : 28
 small_text_size : 18
