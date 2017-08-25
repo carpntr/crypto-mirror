@@ -10,7 +10,8 @@ from PIL import Image, ImageTk
 from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
-CONFIG_PATH = 'config.yml'
+REL_PATH = os.path.realpath(__file__).rsplit('/', 1)[0]
+CONFIG_PATH = REL_PATH + '/config.yml'
 CONFIG = MirrorConfig.from_yaml(CONFIG_PATH)
 
 @contextmanager
