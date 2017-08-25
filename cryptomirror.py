@@ -1,9 +1,10 @@
 # smartmirror.py
-
 from tkinter import *
-import locale, threading
+import locale
+import threading
 import time
-import requests, json
+import requests
+import json
 import traceback
 from util import *
 from PIL import Image, ImageTk
@@ -14,8 +15,9 @@ REL_PATH = os.path.realpath(__file__).rsplit('/', 1)[0]
 CONFIG_PATH = f'{REL_PATH}/config.yml'
 CONFIG = MirrorConfig.from_yaml(CONFIG_PATH)
 
+
 @contextmanager
-def setlocale(name): #thread proof function to work with locale
+def setlocale(name):   # thread proof function to work with locale
     with LOCALE_LOCK:
         saved = locale.setlocale(locale.LC_ALL)
         try:
@@ -31,8 +33,6 @@ class Ticker(Frame):
         self.url = CONFIG.ticker['url']
         self.update_symbols(initial=True)
 
-
-    # Todo: separate this method out into several smaller ones
     def update_symbols(self, initial=False):
         tick_dict = {}
         resp = requests.get(self.url, {'limit': 10})
@@ -57,7 +57,7 @@ class Coin(Label):
     def __init__(self, *args, **kwargs):
         # Assign attributes from tick_dict
         self.__dict__.update(kwargs)
-        Label.__init__(self,font=('Helvetica', CONFIG.medium_text_size),
+        Label.__init__(self, font=('Helvetica', CONFIG.medium_text_size),
                        fg='white',
                        bg='black')
         self.pack(side=TOP, anchor=W, padx=100)
@@ -68,8 +68,8 @@ class Coin(Label):
         self.config(text=f'{self.symbol}: ${self.price_usd}')
 
     @classmethod
-    def from_dict(cls, dict):
-        return cls(**dict)
+    def from_dict(cls, d):
+        return cls(**d)
 
 
 class Clock(Frame):
@@ -77,24 +77,29 @@ class Clock(Frame):
         Frame.__init__(self, parent, bg='black')
         # initialize time label
         self.time1 = ''
-        self.timeLbl = Label(self, font=('Helvetica', CONFIG.large_text_size), fg="white", bg="black")
+        self.timeLbl = Label(self, font=('Helvetica', CONFIG.large_text_size),
+                             fg="white", bg="black")
         self.timeLbl.pack(side=TOP, anchor=E)
         # initialize day of week
         self.day_of_week1 = ''
-        self.dayOWLbl = Label(self, text=self.day_of_week1, font=('Helvetica', CONFIG.small_text_size), fg="white", bg="black")
+        self.dayOWLbl = Label(self, text=self.day_of_week1,
+                              font=('Helvetica', CONFIG.small_text_size),
+                              fg="white", bg="black")
         self.dayOWLbl.pack(side=TOP, anchor=E)
         # initialize date label
         self.date1 = ''
-        self.dateLbl = Label(self, text=self.date1, font=('Helvetica', CONFIG.small_text_size), fg="white", bg="black")
+        self.dateLbl = Label(self, text=self.date1,
+                             font=('Helvetica', CONFIG.small_text_size),
+                             fg="white", bg="black")
         self.dateLbl.pack(side=TOP, anchor=E)
         self.tick()
 
     def tick(self):
         with setlocale(CONFIG.ui_locale):
             if CONFIG.time_format == 12:
-                time2 = time.strftime('%I:%M %p') #hour in 12h format
+                time2 = time.strftime('%I:%M %p')  # hour in 12h format
             else:
-                time2 = time.strftime('%H:%M') #hour in 24h format
+                time2 = time.strftime('%H:%M')  # hour in 24h format
 
             day_of_week2 = time.strftime('%A')
             date2 = time.strftime(CONFIG.date_format)
@@ -126,15 +131,22 @@ class Weather(Frame):
         self.icon = ''
         self.degreeFrm = Frame(self, bg="black")
         self.degreeFrm.pack(side=TOP, anchor=W)
-        self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', CONFIG.xlarge_text_size), fg="white", bg="black")
+        self.temperatureLbl = Label(self.degreeFrm, font=(
+        'Helvetica', CONFIG.xlarge_text_size), fg="white", bg="black")
         self.temperatureLbl.pack(side=LEFT, anchor=N)
         self.iconLbl = Label(self.degreeFrm, bg="black")
         self.iconLbl.pack(side=LEFT, anchor=N, padx=20)
-        self.currentlyLbl = Label(self, font=('Helvetica', CONFIG.medium_text_size), fg="white", bg="black")
+        self.currentlyLbl = Label(self,
+                                  font=('Helvetica', CONFIG.medium_text_size),
+                                  fg="white", bg="black")
         self.currentlyLbl.pack(side=TOP, anchor=W)
-        self.forecastLbl = Label(self, font=('Helvetica', CONFIG.small_text_size), fg="white", bg="black")
+        self.forecastLbl = Label(self,
+                                 font=('Helvetica', CONFIG.small_text_size),
+                                 fg="white", bg="black")
         self.forecastLbl.pack(side=TOP, anchor=W)
-        self.locationLbl = Label(self, font=('Helvetica', CONFIG.small_text_size), fg="white", bg="black")
+        self.locationLbl = Label(self,
+                                 font=('Helvetica', CONFIG.small_text_size),
+                                 fg="white", bg="black")
         self.locationLbl.pack(side=TOP, anchor=W)
         self.get_weather()
 
@@ -171,8 +183,9 @@ class Weather(Frame):
             r = requests.get(weather_req_url)
             weather_obj = json.loads(r.text)
 
-            degree_sign= u'\N{DEGREE SIGN}'
-            temperature2 = "%s%s" % (str(int(weather_obj['currently']['temperature'])), degree_sign)
+            degree_sign = u'\N{DEGREE SIGN}'
+            temperature2 = "%s%s" % (
+            str(int(weather_obj['currently']['temperature'])), degree_sign)
             currently2 = weather_obj['currently']['summary']
             forecast2 = weather_obj["hourly"]["summary"]
 
@@ -224,7 +237,6 @@ class Weather(Frame):
 
 
 class FullscreenWindow:
-
     def __init__(self):
         # Set up frames
         self.tk = Tk()
@@ -252,7 +264,6 @@ class FullscreenWindow:
         self.ticker.pack(side=BOTTOM, anchor=S, fill=BOTH, padx=100, pady=60)
         self.toggle_fullscreen()
 
-
     def toggle_fullscreen(self, event=None):
         self.state = not self.state  # Just toggling the boolean
         self.tk.attributes("-fullscreen", self.state)
@@ -262,6 +273,7 @@ class FullscreenWindow:
         self.state = False
         self.tk.attributes("-fullscreen", False)
         return "break"
+
 
 if __name__ == '__main__':
     w = FullscreenWindow()
