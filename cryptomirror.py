@@ -9,6 +9,10 @@ import traceback
 from util import *
 from PIL import Image, ImageTk
 from contextlib import contextmanager
+import matplotlib
+matplotlib.use('Agg')
+
+os.environ.setdefault('DISPLAY', '0.0')
 
 LOCALE_LOCK = threading.Lock()
 REL_PATH = os.path.realpath(__file__).rsplit('/', 1)[0]
