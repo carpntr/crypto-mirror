@@ -36,4 +36,7 @@ sudo sed -i "\$i python3.6 ~/crypto-mirror/cryptomirror.py &" /etc/rc.local
 sudo reboot
 ```
 
+# Change monitor orientation
+Add line `display_rotate=1` to your /boot/config.txt
+
 
