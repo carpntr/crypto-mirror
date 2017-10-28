@@ -20,6 +20,10 @@ sudo apt-get install python-imaging-tk libfreetype6 libfreetype6-dev libjpeg9-de
 sudo pip3.6 install -r requirements.txt
 ```
 
+### Change monitor orientation
+Add line `display_rotate=1` to your /boot/config.txt
+
+
 ## Running
 To run the application run the following command in this folder
 ```
@@ -35,8 +39,5 @@ sudo sed -i "\$i python3.6 ~/crypto-mirror/cryptomirror.py &" /etc/rc.local
 # Reboot to test her out
 sudo reboot
 ```
-
-# Change monitor orientation
-Add line `display_rotate=1` to your /boot/config.txt
 
 
