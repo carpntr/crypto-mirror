@@ -11,8 +11,8 @@ cd
 git clone git@github.com:AndrewLCarpenter/crypto-mirror.git
 ```
 
-### Python 3.6 -- because who doesn't like f-strings?
-In all seriousness, f-strings are pretty cool... and I didn't really think about how the raspberry pi doesn't ship with python3.6, so follow [these instructions](https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f) to install it.
+### Python 3.6
+I didn't really think about how the raspberry pi doesn't ship with python3.6, so follow [these instructions](https://gist.github.com/dschep/24aa61672a2092246eaca2824400d37f) to install it.
 
 ### Install your dependencies (use pip3.6)
 ```
